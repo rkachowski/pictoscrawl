@@ -1,0 +1,43 @@
+# plugins for core server
+plugins:
+- [anon, AnonymousLogin] # anonymous login
+- [passwd, NaivePasswordLogin] # password login
+- [logout, SimpleLogout] # logout processing
+- [world, WorldPlugin] # default world-joining behaviour
+- [policy, PolicyFilePlugin] # Flash policy file requests
+- [reload, Reloader] # allow live reload
+
+# worlds in this server
+worlds:
+  chat:
+    plugins:
+    - [join, JoinPlugin]
+    - [echo, EchoPlugin]
+
+    rooms: ['[A-Z]'] # 26 chat rooms 'A' to 'Z'
+
+  scrawl: # scrawl chat (scribble in HTML5 canvas)
+    plugins:
+    - [scrawl, ScrawlPlugin]
+    - [join, JoinPlugin]
+
+    rooms: ['room[123]'] # rooms are room1, room2, room3
+
+  picto:
+    plugins:
+    - [join, JoinPlugin]
+    - [echo, EchoPlugin]
+    - [none, RoomUsersPlugin]
+    - [say, SimpleChatPlugin]
+
+    rooms: ['main']
+
+max_users: 5000 # max users on server
+max_idle: 600   # maximum seconds of idle time allowed
+max_bad: 3      # maximum unrecognised commands allowed
+max_per_minute: 300  # maximum msg/minute for a connection
+stats_interval: 300  # how often stats are logged
+
+passwd_users:
+  test: test
+
