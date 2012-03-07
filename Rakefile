@@ -15,7 +15,7 @@ task :copy_files => "bin" do
 end
 
 task :run => :copy_files do
-    sh "bin/huRUservice start picto"
+    sh "cd bin; ./huRUservice start picto"
 end 
 
 task :clean  => "bin" do
