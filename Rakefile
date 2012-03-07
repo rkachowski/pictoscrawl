@@ -18,7 +18,7 @@ task :run => :copy_files do
     sh "bin/huRUservice start picto"
 end 
 
-task :clean do
+task :clean  => "bin" do
     sh "bin/huRUservice stop picto"
     sh "rm -fr bin"
 end
