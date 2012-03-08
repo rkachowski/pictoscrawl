@@ -2,7 +2,11 @@ require "fileutils"
 
 directory "bin"
 
-task :copy_files => "bin" do
+task :make_bundle do
+    sh "cd huru/bundle;./make_bundle.py"
+end
+
+task :copy_files => [:make_bundle, "bin"] do
     huru_files = Dir.glob "huru/bundle/HuzuRelay/*" 
 
     #don't want any of the client files or example test files
