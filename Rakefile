@@ -3,7 +3,7 @@ require "fileutils"
 directory "bin"
 
 task :make_bundle do
-    sh "cd huru/bundle;./make_bundle.py"
+    sh "cd huru/bundle;./make_bundle.py;unzip HuzuRelay.zip"
 end
 
 task :copy_files => [:make_bundle, "bin"] do
