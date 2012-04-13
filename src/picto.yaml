@@ -36,7 +36,7 @@ worlds:
 max_users: 5000 # max users on server
 max_idle: 600   # maximum seconds of idle time allowed
 max_bad: 3      # maximum unrecognised commands allowed
-max_per_minute: 300  # maximum msg/minute for a connection
+max_per_minute: 99999  # maximum msg/minute for a connection
 stats_interval: 300  # how often stats are logged
 
 passwd_users:
