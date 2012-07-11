@@ -34,13 +34,16 @@ PICTO_BIN.zip(PICTO_SRC).each do |target, source|
     copy_file_task source, target
 end
 
+#desc "download and unpack the required huru bundle for the picto server"
 file "lib/HuzuRelay.zip" => ["lib"] do
     `wget -O lib/HuzuRelay.zip #{HUZU_RELAY_DOWNLOAD}`
     `unzip lib/HuzuRelay.zip -d lib`
 end
 
+desc "copy the picto src files to bin"
 task :copy_picto_src => PICTO_BIN
 
+desc "copy the huru files to bin and generate file tasks"
 task :copy_huru_files => ["lib/HuzuRelay.zip", "bin"] do
     huru_src = FileList["lib/HuzuRelay/**/*"]
     huru_src.exclude {|f| f.include?("client") || f.include?("test") || f.include?("doc") }
@@ -52,14 +55,29 @@ task :copy_huru_files => ["lib/HuzuRelay.zip", "bin"] do
     end
 
     #gonna invoke the file tasks here because these are dynamic and so can't define as dependencies
-    huru_bin.each {|f| Rake::Task[f].execute }
+    huru_bin.each {|f| Rake::Task[f].invoke }
 end
 
 
+desc "check for and install (using easy_install) the required python eggs for huru"
 task :check_for_eggs do
     egg_dir = `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
+    eggs = FileList[(egg_dir+"/*")]
+    puts eggs
 end
 
-task :copy_stuff => [:copy_huru_files, :copy_picto_src]
+desc "download all dependencies and assemble the bin folder"
+task :build => [:copy_huru_files, :copy_picto_src]
 
-task :default => :copy_stuff
+task :default => :check_for_eggs
+
+desc "run the pictoscrawl server and client"
+task :run => :build do
+    `cd bin; ./huRUservice start picto`
+    #TODO: run the client
+end
+
+desc "stop running everything"
+task :stop => :build do
+    `cd bin; ./huRUservice start picto`
+end
