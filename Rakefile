@@ -1,42 +1,42 @@
 require "fileutils"
+include FileUtils
 
 directory "bin"
+directory "lib"
 
-desc "make and unzip huru bundle"
-task :make_bundle do
-    puts "making huru bundle.."
-    `cd huru/bundle;rm -fr HuzuRelay*;./make_bundle.py;unzip HuzuRelay.zip`
+PICTO_SRC = FileList["src/**/*"]
+PICTO_BIN = PICTO_SRC.pathmap("%{^src,bin}p")
+
+HUZU_RELAY_DOWNLOAD = "http://www.huzutech.com/Themes/Huzutech/downloads/HuzuRelay.zip"
+HURU_SRC = FileList["lib/HuzuRelay/**/*"]
+
+PICTO_BIN.zip(PICTO_SRC).each do |target, source|
+    copy_file_task source, target
 end
 
-desc "copy relevant huru files from bundle and src files from project to bin"
-task :copy_files => [:make_bundle, "bin"] do
-    huru_files = Dir.glob "huru/bundle/HuzuRelay/*" 
+def copy_file_task(source, target)
+    file target => [source, "bin"] do
+        containing_dir = target.pathmap "%d"
+        directory containing_dir
 
-    #don't want any of the client files or example test files
-    huru_files.delete_if {|f| f.include?('client') || f.include?('test')}
-    src_files = Dir.glob "src/*"
-
-    puts "copying huru files.."
-    FileUtils.cp_r huru_files, "bin"
-    puts "copying picto src files.."
-    FileUtils.cp_r src_files, "bin"
+        if File.directory?(source)
+            directory target
+        else
+            cp source, target
+        end
+    end
 end
 
-desc "start the picto server"
-task :run => :copy_files do
-    puts "starting server"
-    `cd bin; ./huRUservice start picto`
-end 
-
-desc "run picto server directly"
-task :run_no_daemon => :copy_files do
-    puts "running server"
-    sh "cd bin;twistd --nodaemon -y picto.tac"
+file "lib/HuzuRelay.zip" => ["lib"] do
+    `wget -O lib/HuzuRelay.zip #{HUZU_RELAY_DOWNLOAD}`
+    `unzip lib/HuzuRelay.zip -d lib`
 end
 
-desc "wipe out the bin folder"
-task :clean  => "bin" do
-    puts "cleaning.."
-    `bin/huRUservice stop picto`
-    `rm -fr bin`
+file HURU_SRC => ["lib/HuzuRelay.zip"]
+
+task :check_for_eggs do
+    egg_dir = `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
+
 end
+
+task :default => PICTO_BIN
