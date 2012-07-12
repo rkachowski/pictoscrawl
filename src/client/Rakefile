@@ -1,0 +1,8 @@
+desc "serve z pages"
+
+task :default => [:run]
+
+task :run  do
+    puts "starting server..."
+    `python -m SimpleHTTPServer`
+end 

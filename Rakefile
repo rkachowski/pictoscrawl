@@ -7,7 +7,11 @@ directory "bin"
 directory "lib"
 
 PICTO_SRC = FileList["src/**/*"]
+PICTO_SRC.exclude("src/client/**/*")
 PICTO_BIN = PICTO_SRC.pathmap("%{^src,bin}p")
+
+CLIENT_SRC = FileList["src/client/**/*"]
+CLIENT_BIN = CLIENT_SRC.pathmap("%{^src,bin}p")
 
 HUZU_RELAY_DOWNLOAD = "http://www.huzutech.com/Themes/Huzutech/downloads/HuzuRelay.zip"
 
@@ -33,6 +37,10 @@ def copy_file_task(source, target, dependency=nil)
 end
 
 PICTO_BIN.zip(PICTO_SRC).each do |target, source|
+    copy_file_task source, target
+end
+
+CLIENT_BIN.zip(CLIENT_SRC).each do |target, source|
     copy_file_task source, target
 end
 
@@ -74,8 +82,11 @@ task :check_for_eggs do
     end
 end
 
+desc "copy client files"
+task :copy_client_src => CLIENT_BIN
+
 desc "download all dependencies and assemble the bin folder"
-task :build => [:get_huru, :copy_picto_src, :check_for_eggs]
+task :build => [:get_huru, :copy_picto_src, :check_for_eggs, :copy_client_src]
 
 task :default => :build
 
