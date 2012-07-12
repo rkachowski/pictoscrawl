@@ -89,9 +89,19 @@ desc "copy client files"
 task :copy_client_src => CLIENT_BIN
 
 desc "download all dependencies and assemble the bin folder"
-task :build => [:get_huru, :copy_picto_src, :check_for_eggs, :copy_client_src]
+task :build => [:get_huru, :get_local_ip, :copy_picto_src, :check_for_eggs, :copy_client_src]
 
 task :default => :build
+
+task :get_local_ip => PICTO_BIN do
+    ip = nil
+    UDPSocket.open {|s| s.connect('64.233.187.99', 1); ip = s.addr.last }
+
+    ip = "'    wsUri: \"ws://#{ip}:8280\"'"
+
+    `echo #{ip} >> src/client/src/app/constants.coffee`
+end
+
 
 desc "run the pictoscrawl server and client"
 task :run => :build do
