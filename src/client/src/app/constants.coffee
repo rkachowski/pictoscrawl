@@ -1,3 +1,3 @@
 define ->
-    wsUri: "ws://10.0.0.126:8280"
+    wsUri: "ws://127.0.0.1:8280"
     huruMessageSeparator: "/"
