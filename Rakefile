@@ -1,12 +1,15 @@
 require "fileutils"
+require 'webrick'
 require "rake/clean"
 
+include WEBrick
 include FileUtils
 
 directory "bin"
 directory "lib"
 
 PICTO_SRC = FileList["src/**/*"]
+
 PICTO_SRC.exclude("src/client/**/*")
 PICTO_BIN = PICTO_SRC.pathmap("%{^src,bin}p")
 
@@ -92,11 +95,28 @@ task :default => :build
 
 desc "run the pictoscrawl server and client"
 task :run => :build do
-    `cd bin; nohup ./huRUservice start picto &`
-    #TODO: run the client
+    `cd bin; ./huRUservice start picto`
+    Dir.chdir "bin/client"
+    
+    pid = fork do
+        #shutup webrick
+        s = HTTPServer.new :Port => 8000, :DocumentRoot => Dir.pwd, :AccessLog => [], :Logger => Log::new("/dev/null", 7)
+        s.start
+    end
+
+    Process.detach pid
+
+    `echo #{pid} > picto-client.pid`
+
+    Dir.chdir "../.."
 end
 
 desc "stop running everything"
 task :stop => :build do
-    `cd bin; ./huRUservice stop picto`
+    `cd bin; ./huRUservice stop`
+
+    if File.exists? "bin/client/picto-client.pid" then
+        `cat bin/client/picto-client.pid | xargs kill -9 `
+        rm "bin/client/picto-client.pid" 
+    end
 end
