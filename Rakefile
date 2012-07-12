@@ -11,6 +11,8 @@ PICTO_BIN = PICTO_SRC.pathmap("%{^src,bin}p")
 
 HUZU_RELAY_DOWNLOAD = "http://www.huzutech.com/Themes/Huzutech/downloads/HuzuRelay.zip"
 
+EGGS = ["Twisted", "PyYAML", "txws"]
+
 CLEAN.include(PICTO_BIN)
 CLOBBER.include("bin","lib")
 
@@ -62,14 +64,19 @@ end
 desc "check for and install (using easy_install) the required python eggs for huru"
 task :check_for_eggs do
     egg_dir = `python -c "from distutils.sysconfig import get_python_lib; print get_python_lib()"`
-    eggs = FileList[(egg_dir+"/*")]
-    puts eggs
+    eggs = Dir.entries(egg_dir.strip)
+
+    EGGS.each do |required_egg|
+        unless eggs.any? { |installed_egg| installed_egg.include? required_egg }
+            sh "easy_install #{required_egg}"
+        end
+    end
 end
 
 desc "download all dependencies and assemble the bin folder"
-task :build => [:copy_huru_files, :copy_picto_src]
+task :build => [:copy_huru_files, :copy_picto_src, :check_for_eggs]
 
-task :default => :check_for_eggs
+task :default => :build
 
 desc "run the pictoscrawl server and client"
 task :run => :build do
