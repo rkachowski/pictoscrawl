@@ -99,7 +99,7 @@ task :get_local_ip => PICTO_BIN do
 
     ip = "'    wsUri: \"ws://#{ip}:8280\"'"
 
-    `echo #{ip} >> src/client/src/app/constants.coffee`
+    `echo #{ip} >> bin/client/src/app/constants.coffee`
 end
 
 
