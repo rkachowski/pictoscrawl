@@ -11,7 +11,7 @@ PICTO_BIN = PICTO_SRC.pathmap("%{^src,bin}p")
 
 HUZU_RELAY_DOWNLOAD = "http://www.huzutech.com/Themes/Huzutech/downloads/HuzuRelay.zip"
 
-EGGS = ["Twisted", "PyYAML", "txws"]
+EGGS = ["Twisted", "PyYAML", "txWS"]
 
 CLEAN.include(PICTO_BIN)
 CLOBBER.include("bin","lib")
@@ -46,7 +46,7 @@ desc "copy the picto src files to bin"
 task :copy_picto_src => PICTO_BIN
 
 desc "copy the huru files to bin and generate file tasks"
-task :copy_huru_files => ["lib/HuzuRelay.zip", "bin"] do
+task :get_huru => ["lib/HuzuRelay.zip", "bin"] do
     huru_src = FileList["lib/HuzuRelay/**/*"]
     huru_src.exclude {|f| f.include?("client") || f.include?("test") || f.include?("doc") }
 
@@ -68,23 +68,24 @@ task :check_for_eggs do
 
     EGGS.each do |required_egg|
         unless eggs.any? { |installed_egg| installed_egg.include? required_egg }
+            puts "### installing #{required_egg}"
             sh "easy_install #{required_egg}"
         end
     end
 end
 
 desc "download all dependencies and assemble the bin folder"
-task :build => [:copy_huru_files, :copy_picto_src, :check_for_eggs]
+task :build => [:get_huru, :copy_picto_src, :check_for_eggs]
 
 task :default => :build
 
 desc "run the pictoscrawl server and client"
 task :run => :build do
-    `cd bin; ./huRUservice start picto`
+    `cd bin; nohup ./huRUservice start picto &`
     #TODO: run the client
 end
 
 desc "stop running everything"
 task :stop => :build do
-    `cd bin; ./huRUservice start picto`
+    `cd bin; ./huRUservice stop picto`
 end
