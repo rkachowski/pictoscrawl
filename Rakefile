@@ -93,13 +93,18 @@ task :build => [:get_huru, :get_local_ip, :copy_picto_src, :check_for_eggs, :cop
 
 task :default => :build
 
-task :get_local_ip => PICTO_BIN do
-    ip = nil
-    UDPSocket.open {|s| s.connect('64.233.187.99', 1); ip = s.addr.last }
+task :get_local_ip => :copy_client_src do
+    f = File.new "bin/client/src/app/constants.coffee" 
 
-    ip = "'    wsUri: \"ws://#{ip}:8280\"'"
+    unless f.lines.any? {|line| line.include? "wsUri"}
+        ip = nil
+        UDPSocket.open {|s| s.connect('64.233.187.99', 1); ip = s.addr.last }
 
-    `echo #{ip} >> bin/client/src/app/constants.coffee`
+        #this is dirty but i don't care woooo!
+        ip = "'    wsUri: \"ws://#{ip}:8280\"'"
+
+        `echo #{ip} >> bin/client/src/app/constants.coffee`
+    end
 end
 
 
@@ -123,7 +128,7 @@ end
 
 desc "stop running everything"
 task :stop => :build do
-    `cd bin; ./huRUservice stop`
+    `cd bin; ./huRUservice stop picto`
 
     if File.exists? "bin/client/picto-client.pid" then
         `cat bin/client/picto-client.pid | xargs kill -9 `
