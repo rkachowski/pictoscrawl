@@ -4,7 +4,8 @@ pictoscrawl !
 A pretty basic HTML5 demo using websockets to add real time chat and a shared drawing space to a webpage. The client
 is developed predominantly in [CoffeeScript](https://github.com/jashkenas/coffee-script/) and uses [RequireJS](https://github.com/jrburke/requirejs/) to provide the modular support.
 
-A [HuzuRelay](http://www.huzutech.com/products/huzurelay) instance is setup locally to support server connections.
+A [HuzuRelay](http://www.huzutech.com/products/huzurelay) instance is setup locally to support server connections. This means
+that other machines on your network can connect and interact with the same session. It looks pretty cool on an iPad.
 
 Installation
 ------------
